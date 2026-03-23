@@ -17,9 +17,9 @@ jobs:
         - name: Create output folder
           run: mkdir compiled
         - name: Compile report
-          run: typst compile ./report/report.typ ./compiled/report.pdf --root ./
+          run: typst compile ./docs/report/report.typ ./compiled/report.pdf --root ./
         - name: Compile presentation
-          run: typst compile ./presentation/report.typ ./compiled/presentation.pdf --root ./
+          run: typst compile ./docs/presentation/report.typ ./compiled/presentation.pdf --root ./
         - name: Upload artifact
           uses: actions/upload-artifact@v4
           with:
