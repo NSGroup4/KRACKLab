@@ -7,6 +7,8 @@
 Cover image: KRACK vulnerability logo by Mathy Vanhoef <br>
 Mathy Vanhoef, CC BY-SA 4.0, via Wikimedia Commons. File available at: https://www.krackattacks.com/images/logo.png
 
+This repository is NOT OFFICIAL and NOT RELATED with the researchers who discovered and analyzed the KRACK vulnerabilities
+
 ## Table of contents
 - [Introduction](#introduction)
 - [Setup guides](#setup-guides)
