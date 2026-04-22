@@ -1,3 +1,6 @@
 [submodule "lab/ex2/krackattacks-script"]
 	path = lab/ex2/krackattacks-script
 	url = https://github.com/vanhoefm/krackattacks-scripts
+[submodule "lab/ex2/mininet-wifi"]
+	path = lab/ex2/mininet-wifi
+	url = https://github.com/intrig-unicamp/mininet-wifi.git
