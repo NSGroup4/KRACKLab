@@ -1,7 +1,7 @@
-Exercise 2 setup replication instructions:
+# Exercise 2 setup replication instructions
 
 > [!CAUTION]
-> This guid will install a very old Linux Kernel. Usage of the computer after following the guide is STRONGLY NOT RECOMMENDED. It is STRONGLY SUGGESTED to use a Virtual Machine and disable the internet connection.
+> This guide will install a very old Linux Kernel and other known vulnerable components. Usage of the computer after following the guide is VEHEMENTLY ADVISED AGAINST. It is STRONGLY SUGGESTED to use a Virtual Machine and disable all connectivity. DO NOT PROCEED IF YOU DON'T FULLY UNDERSTAND WHAT YOU ARE DOING: the machine will be exposed to various vulnerability.
 
 - Clone the lab repo with in the Documents folder with the following command:
   ```
