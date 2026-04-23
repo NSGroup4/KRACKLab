@@ -111,13 +111,14 @@ def check_udp_port(ip, port, timeout=2):
     try:
         sock.sendto(b'', (ip, port))
         data, addr = sock.recvfrom(1024)
-        return True, # Open (Received Response)
+        return True # Open (Received Response)
     except socket.timeout:
-        return None, # Open | Filtered (No Response)   
+        return None # Open | Filtered (No Response)   
     except ConnectionResetError:
-        return False, # Closed (ICMP Unreachable)
+        return False # Closed (ICMP Unreachable)
     except Exception as e:
-        return False, f"Error: {e}"
+        print(f"Error: {e}")
+        return False
     finally:
         sock.close()
     
