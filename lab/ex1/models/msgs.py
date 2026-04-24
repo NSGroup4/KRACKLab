@@ -4,6 +4,9 @@ class HandshakeMSG:
         self.repl=repl
         self.nonce = nonce
         self.key = key
+    
+    def __str__(self):
+        return "HandshakeMSG"
 
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
@@ -20,6 +23,9 @@ class EncMSG:
     def __init__(self,payload,nonce):
         self.nonce=nonce
         self.payload=payload
+
+    def __str__(self):
+        return "EncMSG"
     
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
@@ -31,15 +37,41 @@ class EncMSG:
         )
 
 class AssMSG: # ass requestS
-    pass
+    def __str__(self):
+        return "AssMSG"
+    
+    def format_msg(self, send=False):
+        status = "Sending" if send else "Receiving"
+        return (
+            f"--{status}--\n"
+            f"{self.__str__()}"
+        )
+
 
 class DassMSG: # deass request
-    pass
+    def __str__(self):
+        return "DassMSG"
+    
+    def format_msg(self, send=False):
+        status = "Sending" if send else "Receiving"
+        return (
+            f"--{status}--\n"
+            f"{self.__str__()}"
+        )
+
     
 class CloseMSG:
     def __init__(self,msg):
         self.msg = msg
     
     def __str__(self):
-        return self.msg
+        return "CloseMSG"
+    
+    def format_msg(self, send=False):
+        status = "Sending" if send else "Receiving"
+        return (
+            f"--{status}--\n"
+            f"{self.msg}"
+        )
+
 

@@ -5,9 +5,8 @@ import socket
 import pickle
 import time
 
-CLIENT = ['127.0.0.1', 5001]
-AP = ['127.0.0.1', 5002]
-
+CLIENT = ('127.0.0.1', 5002)
+AP = ('127.0.0.1', 5001)
 
 class MStates():
     IDLE = 0
@@ -23,20 +22,25 @@ class MitMSocket():
         self._reply_msgs = []
         self._state = MStates.IDLE
 
+        print(f"IP:{addr}")
+        print(f"PORT:{port}")
+        print(f"MitM is definitely using: {self._m.getsockname()}")
+    
     def send(self):
-
-        match self._state:
-            case MStates.IDLE | MStates.INSTALLED:
-                if self._current_msg != None:
-                    self.__send_msg(self._current_msg)
-                    del self._current_msg
-            case MStates.READY:
-                msg = self._reply_msgs.pop(0)
-                self.__send_msg(msg)
-                time.sleep(0.5) # to make sure that the message arrives to the client
-                msg = self._reply_msgs.pop(0)
-                self.__send_msg(msg)
-                self._state = MStates.INSTALLED
+        input("Press <enter> to send...\n")
+        if self._state is MStates.READY:
+            msg = self._reply_msgs.pop(0)
+            print(msg.format_msg(send=True))
+            self.__send_msg(msg)
+            time.sleep(0.5) # to make sure that the message arrives to the client
+            msg = self._reply_msgs.pop(0)
+            print(msg.format_msg(send=True))
+            self.__send_msg(msg)
+            self._state = MStates.INSTALLED
+        else:
+            print(self._current_msg.format_msg(send=True))
+            self.__send_msg(self._current_msg)
+            self._current_msg = None
 
 
     def send_dass(self):
@@ -48,28 +52,44 @@ class MitMSocket():
         self._m.settimeout(10)
         try:
             (msg,addr) = self.__get_msg()
-            self._dst = CLIENT if self._dst is AP else AP
+            if msg is None: return
+            self._dst = CLIENT if addr == AP else AP
+            print(addr)
             match msg:
                 case HandshakeMSG():
                     if msg.number < 4:
+                        print(msg.format_msg())
                         self._current_msg = msg
                     else:
                         if not any(isinstance(x, HandshakeMSG) for x in self._reply_msgs): # only add the first msg4
+                            print(msg.format_msg())
+                            print("Not replying msg4...\n")
                             self._reply_msgs.append(msg)
-                        else:
+                        else: # if i receive the second msg4 it means that the key has been reinstalled
+                            print(msg.format_msg())
+                            print("Dropping second msg4...\n")
                             self._state = MStates.READY
                         
                 case AssMSG() | CloseMSG():
+                    print(msg.format_msg())
                     self._current_msg = msg
 
                 case EncMSG():
-                    self._reply_msgs.append(msg)
+                    print(msg.format_msg())
+                    if self._state is MStates.INSTALLED:
+                        self._current_msg = msg
+                    else:
+                        print("Saving message for later...\n")
+                        self._reply_msgs.append(msg)
 
                 case _: # drop the packet
-                    pass
+                    print("Dropped")
 
         except socket.timeout:
             print("Nothing received\n Retrying...\n")
+
+    def has_msg(self):
+        return self._current_msg is not None or self._state is MStates.READY
 
     def close(self):
         if len(self._dst) > 0 :
@@ -78,24 +98,35 @@ class MitMSocket():
         self._m.close() 
 
     def __get_msg(self):
-        data, addr = self._c.recvfrom(1024)
-        msg = pickle.loads(data)
+        data, addr = self._m.recvfrom(1024)
+        msg = None
+        if len(data) > 0:
+            msg = pickle.loads(data)
         return (msg,addr)
     
-    def __send_msg(self, msg,dest):
+    def __send_msg(self, msg):
         serialized_msg = pickle.dumps(msg)
         self._m.sendto(serialized_msg, (self._dst[0], self._dst[1]))
 
-
 def main():
-    M = MitMSocket('127.0.0.1', 5002)
-    print_mitm()
-
     try:
+        print_mitm()
+        M = MitMSocket('127.0.0.1', 6000)
+
+        print("Sending dissociation  frame to Client.")
         M.send_dass()
 
+        M.receive() # eat the test frame sent by client
+
+        print("Waiting for association frame to Client.")
+        M.receive() # wait for association frame
+        M.send() # send for association frame
+
         while True:
-            M.receive()
+            while not M.has_msg():
+                print("Receiving messages...\n")
+                M.receive()
+            print("Sending messages...\n")
             M.send()
 
     except KeyboardInterrupt:

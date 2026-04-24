@@ -70,7 +70,7 @@ class ClientSocket:
                     return
 
                 case CloseMSG():
-                    print(msg)
+                    print(msg.format_msg())
                     self._state = CState.TERMINATED
                         
                 case _:
@@ -84,7 +84,7 @@ class ClientSocket:
         self._repl = -1
         self._msgcount = 0
         msg = AssMSG()
-        if self.__check_udp_port('127.0.0.1', 6000):
+        if self.__check_udp_port('127.0.0.1', 6000) is not False:
             self._dst = ['127.0.0.1', 6000] # in order to fake mitm at the beginning
             self.__send_msg(msg)
         else:
@@ -118,7 +118,7 @@ class ClientSocket:
         sock.settimeout(timeout)
         try:
             sock.sendto(b'', (ip, port))
-            data, addr = sock.recvfrom(1024)
+            _, _ = sock.recvfrom(1024)
             return True # Open (Received Response)
         except socket.timeout:
             return None # Open | Filtered (No Response)   
@@ -132,14 +132,13 @@ class ClientSocket:
     
 def main():
     try:
-        Client = ClientSocket('127.0.0.1', 5002)
         print_client()
+        Client = ClientSocket('127.0.0.1', 5002)
 
         while Client.get_state() is not CState.TERMINATED:
             print('Searching for AP...\n')
+            Client.ass_request()
             while Client.get_state() is CState.SEARCHING:
-                Client.ass_request()
-
                 print('Waiting ANonce from AP...\n')
                 Client.receive(timeout=5)
 
@@ -148,7 +147,7 @@ def main():
 
             print("Waiting GTK from AP\n")
             Client.receive()
-            while Client.get_state() is not CState.TERMINATED:
+            while Client.get_state() not in (CState.TERMINATED, CState.SEARCHING):
                 print('[4/4] Sending message 4 (ACK) to AP...\n')
                 Client.send()
 

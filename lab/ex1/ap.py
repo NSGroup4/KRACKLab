@@ -44,9 +44,8 @@ class APSocket:
         self._ap.settimeout(timeout)
         try:
             (msg,addr) = self.__get_msg()
-            print(msg)
             match msg:
-                case HandshakeMSG() if msg.repl == self._repl:
+                case HandshakeMSG() if msg.repl <= self._repl:
                     print(msg.format_msg())
                     self._dst = addr
                     self._msgcount=msg.number
@@ -62,7 +61,7 @@ class APSocket:
                     self._state = APState.IDLE
 
                 case CloseMSG():
-                    print(msg)
+                    print(msg.format_msg())
                     self._state = APState.IDLE
 
                 case _:
@@ -110,8 +109,8 @@ class APSocket:
 
 def main():
     try:
-        AP = APSocket('127.0.0.1', 5001)
         print_ap()
+        AP = APSocket('127.0.0.1', 5001)
 
         while AP.get_state() is APState.IDLE:
             print('Listening for associations\n')
