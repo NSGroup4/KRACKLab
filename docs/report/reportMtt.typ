@@ -62,7 +62,11 @@
   sudo dpkg -i linux*.deb
   ```
 
-  Lastly, adjust your boot loader settings in order to boot with the older Kernel: it is now possible to run the 2#super("nd") exercise wizard.
+  Lastly, adjust your boot loader settings in order to boot with the older Kernel: it is now possible to run the 2#super("nd") exercise wizard by running:
+
+  ```shell-unix-generic
+  sudo python3 ex2.py
+  ```
 
   It is possible to read a step-by-step guide on the laboratory repository@repo.
 
@@ -76,16 +80,35 @@
 
   In order to better see the packet number re-use, the wizard invite the user to open Wireshark (which is automatically configured to capture only the packets of interest) and execute some `ping` to the Access Point with `sta1 ping -c 14 192.168.100.254` (this being the IP address of fakeAp): see @results for the results.
 
+  #pagebreak()
   == Results <results>
 
   //Max 1 pg
 
-  = Consequences of a Key Reinstallation Attack
+  = Consequences of the attack
 
-  //Max 1 pg
-  
+  The 802.11i standard allow the use of two different protocols for data confidentiality: TKIP and CCMP, both based on stream ciphers, which are a type of algorithm that encrypt messages with a XOR operation between the plaintext and a generated keystream. However, in both cases security is guarantee only if the keystream always change and does not contain predictable (_biased_) section.
+
+  In case of TKIP, a stream cipher called RC4 is used, which is notoriously known to produce biased keystream and this is one of the reason why TKIP is now deprecated (see the RC4 NOMORE vulnerability@rc4nomore, which was also discovered by Mathy Vanhoef).
+
+  CCMP, instead, use AES, a block cipher (therefore, an algorithm that divide the plaintext into blocks and encrypt each of them via various operations), in CCM mode: the keystream is guarantee to be unique as long as, under the same starting key, the Initalization Vector (IV), a combination of the sender MAC, some flags and a 48-bit nonce which is usually just the message number (therefore, it is used as a replay counter), is not repeated.
+
+  The reason why it is essential for stream cyphers to not encrypt using the same keystream is related on how the XOR operator works. Considering M as the plaintext *M*\essage and K as the *K*\eystrem, the *C*\iphertext C is obtained by computing *M$xor$K*. Therefore, computing *C$xor$M* will make anyone obtain the keystream *K*. If a keystream is reused, this means it is possible to obtain a ciphertext *C'=M'$xor$K*. However, following a simple sequence of operation: *C$xor$C'*=*(M$xor$K)$xor$(M'$xor$K)*=*M$xor$K$xor$M'$xor$K*=*K$xor$K$xor$M'$xor$M* but, because of the XOR properties and given a random value A, *A$xor$A=0* and, *A$xor$0=A*, therefore we can say that *K$xor$K$xor$M'$xor$M*=*0$xor$M'$xor$M*=*M'$xor$M*. If M and M' are two normal packet, they will both contain frames of protocols like TCP, which are highly predictable, and since it is possible to easily guess correctly at least a portion of, for example, M', we can use that knowledge in the *M'$xor$M* operation to get the content of the original message *M*.
+
+  The Key Reinstallation Attack cause a reinstallation of the PTK and, consequently, a reset of the packet number used in the IV of CCMP: based on what just discussed, a simple capture of packets before and after the re-installation is sufficient to be able to decrypt at least a portion of one of them: given the normal web traffic, nowadays over HTTPS, this will not make possible to decrypt the payload of the majority of packets, but it is still a very important vulnerability if HTTP is used, potentially breaking both confidentiality and integrity of the packets.
+
+  More importantly, it has been discovered that wpa_supplicant version 2.4 and 2.5 have a more dangerous vulnerability: in order to be compliant with the 802.11 standard, both clear the temporal key from memory once it has been installed: this cause, if the key reinstallation attack is performed, the installation of an all-0 key, again breaking stream ciphers assumption of a non-predictable keystream and allowing to easily decrypt encrypted wireless messages.
+
+  Finally, it was discovered that all Android 6.0 devices were shipped with a modified version of wpa_supplicant affected by the all-0 key problem. Given the diffusion of this operating system, impact of the Key Reinstallation Attack is critical nevertheless.
+
+
   //INCLUDE AI USAGE DECLARATION. MANDATORY. YOU CAN ADD LINES AFTER THE INCLUSION.
   #include "commonParagraph/AIUD.typ"
+  == Additional information
+
+  The information regarding the vulnerability and the possible consequences have been obtained from the published paper@krackattackpaper and the official website@krackattackwebsite of the vulnerability.
+
+  In order to recreate the attack in a virtual environment, essential was the documentation found in the KRACK test scripts repository@script.
 
   #bibliography("sitography/Mtt/reportMttSit.yml", title: "Sitography")
 

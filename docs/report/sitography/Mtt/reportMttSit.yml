@@ -1,8 +1,8 @@
 mnwifi:
-    type: Web
-    title: Official Website of Mininet-WiFi
-    author: Information and Networking Technologies Research and Innovation Group at University of Campinas and contributors
-    url: https://mininet-wifi.github.io/
+  type: Web
+  title: Official Website of Mininet-WiFi
+  author: Information and Networking Technologies Research and Innovation Group at University of Campinas and contributors
+  url: https://mininet-wifi.github.io/
 
 script:
   type: Web
@@ -39,3 +39,21 @@ wireshark:
   title: Official Wireshark website
   author: Wireshark Foundation
   url: https://www.wireshark.org
+
+rc4nomore:
+  type: Web
+  title: Official website of the RC4 NOMORE vulnerability
+  author: [Mathy Vanhoef, Frank Piessens]
+  url: https://www.rc4nomore.com/
+
+krackattackwebsite:
+  type: Web
+  title: Official website of the KRACK vulnerability
+  author: Mathy Vanhoef
+  url: https://www.krackattacks.com/
+
+krackattackpaper:
+  type: Article
+  title: "Key Reinstallation Attacks: Forcing Nonce Reuse in WPA2"
+  author: Mathy Vanhoef
+  url: https://papers.mathyvanhoef.com/ccs2017.pdf

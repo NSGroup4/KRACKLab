@@ -37,7 +37,7 @@
               left
             }
           },
-          [*Student*], [#student.name #student.surname  (#student.stid)],
+          [*Student*], [*#student.name #student.surname  (#student.stid)*],
           [*Team members*],[#authors.andrea.name #authors.andrea.surname (#authors.andrea.stid)],
           [],[#authors.lorenzo.name #authors.lorenzo.surname (#authors.lorenzo.stid)],
           [], [#authors.matteo.name #authors.matteo.surname (#authors.matteo.stid)],
@@ -45,6 +45,9 @@
       ]
 
       #align(center+bottom)[
+
+        *University Of Trento* - *Network Security Course * - *A.Y. 2025/2026*
+
         #text(size: 0.8em)[#vulnName logo by Mathy Vanhoef, licensed under #link("https://creativecommons.org/licenses/by-sa/4.0")[CC BY-SA 4.0], available on the #link("https://www.krackattacks.com/images/logo.png")[#vulnName website]]
         #v(1em)
       ]

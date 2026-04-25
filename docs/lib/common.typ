@@ -1,7 +1,7 @@
 #let course = "Network Security"
 #let mainColor = rgb("B10B25")
 #let university = "University of Trento"
-#let date = "March 28, 2026"
+#let date = "May 6, 2026"
 #let vulnName = "KRACK"
 #let labNumber = "4"
 #let linkColor = blue
