@@ -5,6 +5,9 @@
 # This code may be distributed under the terms of the BSD license.
 # See LICENSE for more details.
 
+# This script is a MODIFIED version of the original script, called krack-ft-test.py and hosted on the GitHub repository https://github.com/vanhoefm/krackattacks-scripts. It is released under the condition of the BSD license.
+# Modified date: April 27, 2026
+
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
@@ -43,7 +46,6 @@ class KRAckAttackFt():
 		self.next_replay = None
 
 	def start_replay(self, p):
-		print("test21",p)
 		self.reassoc = p
 		self.next_replay = time.time() + 1
 		while True:
