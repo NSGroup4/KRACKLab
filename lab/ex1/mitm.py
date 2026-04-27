@@ -1,5 +1,6 @@
 from models.msgs import *
 from utils.ascii_prints import print_mitm
+from utils.log import *
 
 import socket
 import pickle
@@ -22,23 +23,22 @@ class MitMSocket():
         self._reply_msgs = []
         self._state = MStates.IDLE
 
-        print(f"IP:{addr}")
-        print(f"PORT:{port}")
-        print(f"MitM is definitely using: {self._m.getsockname()}")
+        log(f"IP: {addr}", DEBUG)
+        log(f"PORT: {port}\n\n", DEBUG)
     
     def send(self):
         input("Press <enter> to send...\n")
         if self._state is MStates.READY:
             msg = self._reply_msgs.pop(0)
-            print(msg.format_msg(send=True))
+            log(msg.format_msg(send=True),DEBUG)
             self.__send_msg(msg)
             time.sleep(0.5) # to make sure that the message arrives to the client
             msg = self._reply_msgs.pop(0)
-            print(msg.format_msg(send=True))
+            log(msg.format_msg(send=True),DEBUG)
             self.__send_msg(msg)
             self._state = MStates.INSTALLED
         else:
-            print(self._current_msg.format_msg(send=True))
+            log(self._current_msg.format_msg(send=True),DEBUG)
             self.__send_msg(self._current_msg)
             self._current_msg = None
 
@@ -54,39 +54,38 @@ class MitMSocket():
             (msg,addr) = self.__get_msg()
             if msg is None: return
             self._dst = CLIENT if addr == AP else AP
-            print(addr)
             match msg:
                 case HandshakeMSG():
+                    log(msg.format_msg(),DEBUG)
                     if msg.number < 4:
-                        print(msg.format_msg())
                         self._current_msg = msg
                     else:
                         if not any(isinstance(x, HandshakeMSG) for x in self._reply_msgs): # only add the first msg4
-                            print(msg.format_msg())
-                            print("Not replying msg4...\n")
+                            log("Not replying msg4...\n",WATCH)
                             self._reply_msgs.append(msg)
                         else: # if i receive the second msg4 it means that the key has been reinstalled
-                            print(msg.format_msg())
-                            print("Dropping second msg4...\n")
+                            log("Dropping second msg4...\n", WARNING)
                             self._state = MStates.READY
                         
                 case AssMSG() | CloseMSG():
-                    print(msg.format_msg())
+                    log(msg.format_msg(),DEBUG)
                     self._current_msg = msg
 
                 case EncMSG():
-                    print(msg.format_msg())
+                    log(msg.format_msg(),DEBUG)
                     if self._state is MStates.INSTALLED:
                         self._current_msg = msg
                     else:
-                        print("Saving message for later...\n")
+                        log("Saving data message for later...\n",WATCH)
                         self._reply_msgs.append(msg)
 
                 case _: # drop the packet
-                    print("Dropped")
-
+                    log("Out of interested packet detected\n Dropping...\n", WARNING)
+        except ConnectionResetError:
+            log(f"Failed to contact the {"Client" if addr == AP else "AP"}\n",ERROR)
+            exit(1)
         except socket.timeout:
-            print("Nothing received\n Retrying...\n")
+            log("Nothing received\n Retrying...\n",WARNING)
 
     def has_msg(self):
         return self._current_msg is not None or self._state is MStates.READY
@@ -109,31 +108,31 @@ class MitMSocket():
         self._m.sendto(serialized_msg, (self._dst[0], self._dst[1]))
 
 def main():
+    print_mitm()
     try:
-        print_mitm()
         M = MitMSocket('127.0.0.1', 6000)
 
-        print("Sending dissociation  frame to Client.")
+        log("Sending dissociation  frame to Client...\n")
         M.send_dass()
 
         M.receive() # eat the test frame sent by client
 
-        print("Waiting for association frame to Client.")
+        log("Waiting for association frame to Client...\n")
         M.receive() # wait for association frame
         M.send() # send for association frame
 
         while True:
             while not M.has_msg():
-                print("Receiving messages...\n")
+                log("Receiving messages...\n")
                 M.receive()
-            print("Sending messages...\n")
+            log("Sending messages...\n",showtime=False)
             M.send()
 
     except KeyboardInterrupt:
-        print("Interruption detected by user.")
+        log("Interruption detected by user.",ERROR)
     finally:
         M.close()
-        print("Simulation is terminated\n")
+        log("Simulation is terminated\n",showtime=False)
 
 if __name__ == "__main__":
     main()

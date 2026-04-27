@@ -1,5 +1,6 @@
 from models.msgs import *
 from utils.ascii_prints import print_client
+from utils.log import *
 
 import socket
 import pickle
@@ -23,9 +24,8 @@ class ClientSocket:
         self._installed_nonce = 1
         self._state = CState.SEARCHING
 
-        print(f"IP:{addr}")
-        print(f"PORT:{port}")
-        print(f"Client is definitely using: {self._c.getsockname()}")
+        log(f"IP: {addr}", DEBUG)
+        log(f"PORT: {port}\n\n", DEBUG)
 
     def send(self,data=False):
         if self._state is CState.TERMINATED : return
@@ -34,15 +34,15 @@ class ClientSocket:
             self._msgcount+=1
             msg = HandshakeMSG(self._repl,self.__generate_nonce(self._msgcount < 3),"",self._msgcount)
             self.__send_msg(msg)
-            print(msg.format_msg(send=True))
+            log(msg.format_msg(send=True),DEBUG)
             if self._msgcount > 3 :
-                print("Installing PTK & GTK\n")
+                log("Installing PTK & GTK\n",WATCH)
                 self._state = CState.INSTALLED
                 self._installed_nonce = 1
         else:
             msg = EncMSG("KRACKISREAL",self._installed_nonce)
             self.__send_msg(msg)
-            print(msg.format_msg(send=True))
+            log(msg.format_msg(send=True),DEBUG)
             self._installed_nonce +=1
 
     def receive(self,timeout=None):
@@ -53,14 +53,14 @@ class ClientSocket:
 
             match msg:
                 case HandshakeMSG() if msg.repl > self._repl:
-                    print(msg.format_msg())
+                    log(msg.format_msg(),DEBUG)
                     self._dst = addr
                     self._msgcount=msg.number
                     self._repl=msg.repl
                     self._state = CState.READY
                 
                 case DassMSG() if self._state is CState.INSTALLED:
-                    print("Disassociating...\n")
+                    log("Disassociating...\n",WATCH)
                     msg = CloseMSG("Connection terminated by Client")
                     self.__send_msg(msg)
                     self._dst = addr
@@ -70,15 +70,17 @@ class ClientSocket:
                     return
 
                 case CloseMSG():
-                    print(msg.format_msg())
+                    log(msg.format_msg(),DEBUG)
                     self._state = CState.TERMINATED
                         
                 case _:
-                    print("Recived a message in out of order\n Dropping...")
+                    log("Recived a message in out of order\n Dropping..\n.", WARNING)
                     self._state = CState.TERMINATED
-                    
+        except ConnectionResetError:
+            log(f"Failed to contact the AP\n", ERROR)
+            exit(1)
         except socket.timeout:
-            print("Message not received on time\n")
+            log("Message not received on time\n",WARNING)
     
     def ass_request(self):
         self._repl = -1
@@ -125,44 +127,47 @@ class ClientSocket:
         except ConnectionResetError:
             return False # Closed (ICMP Unreachable)
         except Exception as e:
-            print(f"Error: {e}")
+            log(f"Error: {e}",ERROR)
             return False
         finally:
             sock.close()
     
+CLIENT_LISTEN_TIME = 20
+
 def main():
+    print_client()
     try:
-        print_client()
         Client = ClientSocket('127.0.0.1', 5002)
 
         while Client.get_state() is not CState.TERMINATED:
-            print('Searching for AP...\n')
+            log('Searching for AP...\n')
             Client.ass_request()
             while Client.get_state() is CState.SEARCHING:
-                print('Waiting ANonce from AP...\n')
+                log('Waiting ANonce from AP...\n')
                 Client.receive(timeout=5)
 
-            print('[2/4] Sending SNonce to AP...\n')
+            log('[2/4] Sending SNonce to AP...\n')
             Client.send()
 
-            print("Waiting GTK from AP\n")
+            log("Waiting GTK from AP\n")
             Client.receive()
             while Client.get_state() not in (CState.TERMINATED, CState.SEARCHING):
-                print('[4/4] Sending message 4 (ACK) to AP...\n')
+                log('[4/4] Sending message 4 (ACK) to AP...\n')
                 Client.send()
-
+                listen_time = 20
                 while Client.get_state() is CState.INSTALLED:
-                    print("Sending some data to AP...")
+                    log("Sending some data to AP...",showtime=False)
                     Client.send(data=True)
-                    print("Listening for some messages...")
-                    Client.receive(timeout=10) # listen for some time
+                    log("Listening for some messages...")
+                    log(f"For {CLIENT_LISTEN_TIME} seconds", DEBUG)
+                    Client.receive(timeout=CLIENT_LISTEN_TIME) # listen for some time
 
     except KeyboardInterrupt:
-        print("Interruption detected by user.")
+        log("Interruption detected by user.",ERROR)
 
     finally:
         Client.close()
-        print("Simulation is terminated\n")
+        log("Simulation is terminated\n",showtime=None)
 
 
 

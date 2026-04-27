@@ -11,8 +11,7 @@ class HandshakeMSG:
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
         return (
-            f"EAPOL PACKET\n"
-            f"--{status}--\n"
+            f"{self.__str__()} // {status}\n"
             f"Message number: {self.number}\n"
             f"Replay counter: {self.repl}\n"
             f"Nonce: {self.nonce}\n"
@@ -30,8 +29,7 @@ class EncMSG:
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
         return (
-            f"DATA PACKET\n"
-            f"--{status}--\n"
+            f"{self.__str__()} // {status}\n"
             f"Nonce used: {self.nonce:#010x}\n"
             f"Payload: {self.payload}\n"
         )
@@ -43,8 +41,7 @@ class AssMSG: # ass requestS
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
         return (
-            f"--{status}--\n"
-            f"{self.__str__()}"
+            f"{self.__str__()} // {status}\n"
         )
 
 
@@ -55,8 +52,7 @@ class DassMSG: # deass request
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
         return (
-            f"--{status}--\n"
-            f"{self.__str__()}"
+            f"{self.__str__()} // {status}\n"
         )
 
     
@@ -70,8 +66,8 @@ class CloseMSG:
     def format_msg(self, send=False):
         status = "Sending" if send else "Receiving"
         return (
-            f"--{status}--\n"
-            f"{self.msg}"
+            f"{self.__str__()} // {status}\n"
+            f"{self.msg}\n"
         )
 
 

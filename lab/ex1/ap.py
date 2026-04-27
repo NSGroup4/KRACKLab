@@ -1,5 +1,6 @@
 from models.msgs import EncMSG,CloseMSG,HandshakeMSG,AssMSG
 from utils.ascii_prints import print_ap
+from utils.log import *
 
 import socket
 import pickle
@@ -22,22 +23,18 @@ class APSocket:
         self._msgcount = 0
         self._state = APState.IDLE
 
-        print(f"IP:{addr}")
-        print(f"PORT:{port}")
-        print(f"AP is definitely using: {self._ap.getsockname()}")
+        log(f"IP: {addr}", DEBUG)
+        log(f"PORT: {port}\n\n", DEBUG)
 
     def send(self,resend=False):
-        if self._state is APState.IDLE : return
+        if self._state is APState.IDLE: return
         input("Press <enter> to send...\n")
         if not resend:
             self._msgcount+=1
-        key = ""
-        if self._msgcount > 2:
-            key ="GTK"
         self._repl+=1
-        msg = HandshakeMSG(self._repl,self.__generate_nonce(self._msgcount < 3),key,self._msgcount)
+        msg = HandshakeMSG(self._repl,self.__generate_nonce(self._msgcount < 3),"GTK" if self._msgcount > 2 else "",self._msgcount)
         self.__send_msg(msg)
-        print(msg.format_msg(send=True)) 
+        log(msg.format_msg(send=True), DEBUG) 
 
     def receive(self,timeout=None):
         if self._state is APState.IDLE : return
@@ -46,30 +43,30 @@ class APSocket:
             (msg,addr) = self.__get_msg()
             match msg:
                 case HandshakeMSG() if msg.repl <= self._repl:
-                    print(msg.format_msg())
+                    log(msg.format_msg(), DEBUG)
                     self._dst = addr
                     self._msgcount=msg.number
                     if self._msgcount > 3 :
-                            print("Installing PTK & GTK\n")
+                            log("Installing PTK & GTK\n",WATCH)
                             self._state = APState.INSTALLED
 
                 case EncMSG() if self._state is APState.INSTALLED:
-                    print(msg.format_msg())
+                    log(msg.format_msg(), DEBUG)
 
                 case EncMSG() if not self._state is APState.INSTALLED:
-                    print("Recived a encrypted message without installing PTK first\n Dropping...")
+                    log("Recived a encrypted message without installing PTK first\n Dropping...\n",WARNING)
                     self._state = APState.IDLE
 
                 case CloseMSG():
-                    print(msg.format_msg())
+                    log(msg.format_msg(), DEBUG)
                     self._state = APState.IDLE
 
                 case _:
-                    print("Recived a message in out of order\n Dropping...")
+                    log("Recived a message in out of order\n Dropping...\n",WARNING)
                     self._state = APState.IDLE
 
         except socket.timeout:
-            print("Message not received on time\n")
+            log("Message not received on time\n", WARNING)
     
     def listen_ass(self):
         self._repl = -1
@@ -108,40 +105,40 @@ class APSocket:
         return ''.join(random.choice(characters) if empty else "0" for i in range(16))
 
 def main():
+    print_ap()
     try:
-        print_ap()
         AP = APSocket('127.0.0.1', 5001)
 
         while AP.get_state() is APState.IDLE:
-            print('Listening for associations\n')
+            log('Listening for associations\n')
             if AP.listen_ass():
 
-                print('[1/4] Sending the ANonce to client\n')
+                log('[1/4] Sending the ANonce to client\n')
                 AP.send()
 
-                print('Waiting SNonce from client...\n')
+                log('Waiting SNonce from client...\n')
                 AP.receive()
 
                 retry = False
                 while AP.get_state() is APState.READY:
-                    print("[3/4] Sending GTK to client\n")
+                    log("[3/4] Sending GTK to client\n")
                     AP.send(resend=retry)
                     retry = True
-                    print('Waiting message 4 (ACK) from client...\n')
+                    log('Waiting message 4 (ACK) from client...\n')
                     AP.receive(timeout=10)
                 
-                print('Connection Established\n')
+                log('Connection Established\n',WATCH)
 
                 while AP.get_state() is APState.INSTALLED:
-                    print('Listening for messages...')
+                    log('Listening for messages...\n')
                     AP.receive()
 
     except KeyboardInterrupt:
-        print("Interruption detected by user.")
+        log("Interruption detected by user.", ERROR)
 
     finally:
         AP.close()
-        print("Simulation is terminated\n")
+        log("Simulation is terminated\n",showtime=None)
 
 if __name__ == "__main__":
     main()

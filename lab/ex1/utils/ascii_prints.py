@@ -1,5 +1,5 @@
 def print_client():
-    print(r"""
+    print("\033[36m" + r"""
           _____                    _____            _____  
          /\    \                  /\    \          /\    \  
         /::\    \                /::\____\        /::\    \           
@@ -22,11 +22,11 @@ def print_client():
         \::/    /                \::/    /        \::/    /                                   
          \/____/                  \/____/          \/____/                                 
                                                                                                                                           
-    """)
-    input("Press <enter> to start the Client...\n")
+    """+ "\033[1;0m")
+    input("Press <enter> to start the Client...")
 
 def print_ap():
-    print(r"""
+    print("\033[35m" + r"""
           _____                    _____          
          /\    \                  /\    \         
         /::\    \                /::\    \        
@@ -49,11 +49,11 @@ def print_ap():
         \::/    /                                 
          \/____/                                  
                                                   
-    """)
-    input("Press <enter> to start the AP...\n")
+    """+ "\033[1;0m")
+    input("Press <enter> to start the AP...")
 
 def print_mitm():
-    print(r"""
+    print("\033[93m" + r"""
           _____                    _____                _____                    _____          
          /\    \                  /\    \              /\    \                  /\    \         
         /::\____\                /::\    \            /::\    \                /::\____\        
@@ -76,5 +76,5 @@ def print_mitm():
         \::/    /                \::/    /                                     \::/    /        
          \/____/                  \/____/                                       \/____/         
                                                                                                 
-    """)
-    input("Press <enter> to start the MitM...\n")
+    """ + "\033[1;0m")
+    input("Press <enter> to start the MitM...")
