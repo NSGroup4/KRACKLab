@@ -35,7 +35,7 @@ class EncMSG:
             f"{self.__str__()} // {status}\n"
             f"Nonce used: {self.nonce:#010x}\n"
             f"Payload: {self.payload}\n"
-            f"Time: {self.time}"
+            f"Time: {self.time}\n"
         )
 
 class AssMSG: # ass requestS
