@@ -104,6 +104,8 @@ class APSocket:
         characters = string.ascii_letters + string.digits
         return ''.join(random.choice(characters) if empty else "0" for i in range(16))
 
+AP_RETRY_TIME = 30
+
 def main():
     print_ap()
     try:
@@ -125,7 +127,8 @@ def main():
                     AP.send(resend=retry)
                     retry = True
                     log('Waiting message 4 (ACK) from client...\n')
-                    AP.receive(timeout=10)
+                    log(f'Waiting for {AP_RETRY_TIME}\n',DEBUG)
+                    AP.receive(timeout=AP_RETRY_TIME)
                 
                 log('Connection Established\n',WATCH)
 

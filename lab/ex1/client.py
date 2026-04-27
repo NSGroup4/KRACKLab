@@ -117,7 +117,7 @@ class ClientSocket:
         characters = string.ascii_letters + string.digits
         return ''.join(random.choice(characters) if empty else "0" for i in range(16))
     
-CLIENT_LISTEN_TIME = 20
+CLIENT_LISTEN_TIME = 30
 
 def main():
     print_client()
@@ -139,7 +139,6 @@ def main():
             while Client.get_state() not in (CState.TERMINATED, CState.SEARCHING):
                 log('[4/4] Sending message 4 (ACK) to AP...\n')
                 Client.send()
-                listen_time = 20
                 while Client.get_state() is CState.INSTALLED:
                     log("Sending some data to AP...",showtime=False)
                     Client.send(data=True)
