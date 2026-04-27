@@ -7,7 +7,7 @@ COLORCODES = {  "gray"  : "\033[0;90m",
                 "red"   : "\033[0;31m" }
 
 def log(msg,level=INFO, showtime=True):
-	match color:
+	match level:
 		case 0: # debug
 			color= "gray"
 			showtime = False
