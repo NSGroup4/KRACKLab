@@ -126,7 +126,7 @@ def main():
                     log("[3/4] Sending GTK to client\n")
                     AP.send(resend=retry)
                     retry = True
-                    log('Waiting message 4 (ACK) from client...\n')
+                    log('Waiting message 4 (ACK) from client...')
                     log(f'Waiting for {AP_RETRY_TIME}\n',DEBUG)
                     AP.receive(timeout=AP_RETRY_TIME)
                 
