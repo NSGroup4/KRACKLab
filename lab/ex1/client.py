@@ -30,8 +30,8 @@ class ClientSocket:
 
     def send(self,data=False):
         if self._state is CState.TERMINATED : return
-        input("Press <enter> to send...\n")
         if not data:
+            input("Press <enter> to send...\n")
             self._msgcount+=1
             msg = HandshakeMSG(self._repl,self.__generate_nonce(self._msgcount < 3),"",self._msgcount)
             self.__send_msg(msg)
@@ -117,7 +117,7 @@ class ClientSocket:
         characters = string.ascii_letters + string.digits
         return ''.join(random.choice(characters) if empty else "0" for i in range(16))
     
-CLIENT_LISTEN_TIME = 30
+CLIENT_LISTEN_TIME = 20
 
 def main():
     print_client()
@@ -140,8 +140,9 @@ def main():
                 log('[4/4] Sending message 4 (ACK) to AP...\n')
                 Client.send()
                 while Client.get_state() is CState.INSTALLED:
-                    log("Sending some data to AP...",showtime=False)
+                    log("Sending some data to AP...\n",showtime=False)
                     Client.send(data=True)
+                    input("Press <enter> to start listening...\n")
                     log("Listening for some messages...")
                     log(f"For {CLIENT_LISTEN_TIME} seconds\n", DEBUG)
                     Client.receive(timeout=CLIENT_LISTEN_TIME) # listen for some time
