@@ -1,0 +1,24 @@
+script:
+  type: Web
+  title: GitHub repository of KRACK vulnerability testing scripts
+  author: Mathy Vanhoef
+  url: https://github.com/vanhoefm/krackattacks-scripts
+
+wireshark:
+  type: Web
+  title: Official Wireshark website
+  author: Wireshark Foundation
+  url: https://www.wireshark.org
+
+
+krackattackwebsite:
+  type: Web
+  title: Official website of the KRACK vulnerability
+  author: Mathy Vanhoef
+  url: https://www.krackattacks.com/
+
+krackattackpaper:
+  type: Article
+  title: "Key Reinstallation Attacks: Forcing Nonce Reuse in WPA2"
+  author: Mathy Vanhoef
+  url: https://papers.mathyvanhoef.com/ccs2017.pdf
