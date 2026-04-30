@@ -57,3 +57,9 @@ krackattackpaper:
   title: "Key Reinstallation Attacks: Forcing Nonce Reuse in WPA2"
   author: Mathy Vanhoef
   url: https://papers.mathyvanhoef.com/ccs2017.pdf
+
+classroomrules:
+  type: Web
+  title: Rules on the Use of AI and Large Language Models (LLMs)
+  author: Bruno Crispo
+  url: https://classroom.google.com/c/ODQ1MjQwNjM0MDQz

@@ -38,7 +38,7 @@
             }
           },
           [*Student*], [*#student.name #student.surname  (#student.stid)*],
-          [*Team members*],[#authors.andrea.name #authors.andrea.surname (#authors.andrea.stid)],
+          [*Group 5 members*],[#authors.andrea.name #authors.andrea.surname (#authors.andrea.stid)],
           [],[#authors.lorenzo.name #authors.lorenzo.surname (#authors.lorenzo.stid)],
           [], [#authors.matteo.name #authors.matteo.surname (#authors.matteo.stid)],
         )
