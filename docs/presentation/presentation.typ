@@ -20,91 +20,420 @@
 
 #slide("A small note regarding CCMP",[
   
-  #text(size: 1.5em)[
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
 
-    There are several protocols that can be used to protect data between AP and Client:
-      - TKIP
-      - CCMP
-    
-    TKIP used RC4 as a stream cipher -> no longer safe (RC4 NO MORE vulnerability)\
-    CCMP use AES in CCM mode
+      Several protocols usable for *confidentiality* between AP and Client:
 
-    CCMP creates a keystream with various elements, putting them together in the Initializator Vector.
+      #list(marker: (_)=>{[#v(-0.2em) #image("img/Mtt/icons/mdi--key.svg")]},
+        [*TKIP*],
+        [*CCMP*]
+      )
+      
+      - *TKIP* used *RC4* as a stream cipher $arrow$ *no longer safe* (*RC4 NOMORE* vulnerability);
+      - *CCMP* use *AES* in *CCM* mode.
 
-    Between these elements, a nonce is inserted for freshness, usually the packet number
+      CCMP: *keystream* with *various elements* together in the *Initializator Vector (IV)*.
 
-    By reinstaling the PTK, the packet number is also bought to a previous value -> no more freshness -> keystream reuse -> confidentiality compromised
+      #align(center)[$arrow.b.filled$]
 
-  ]
+      *Nonce* should be inserted for freshness, but usually *packet number* is *used*
+
+      PTK reinstallation $arrow.r.filled$ packet number reset $arrow.r.filled$ keystream reuse $arrow.r.filled$ confidentiality compromised (see later slides)
+
+    ]
+  ],
+    [
+      #figure(
+        image("img/Mtt/images/stream-cipher.png"),
+        numbering: none,
+        caption: [Stream Cipher image by #link("https://commons.wikimedia.org/wiki/File:Stream_cipher.svg")[Sissssou] under CC BY-SA 3.0. Available on Wikimedia Commons.]
+      )
+    ]
+  )
 
 ])
 
 #slide("Exercise 2 (1/2)", [
-  #text(size: 1.5em)[
-    We will now test the knowledge we just acquired
-  
-    In order to see the vulnerability "in action", we'll use a simulated network environment with Mininet-WiFi.
 
-    The topology consists of two things:
-    - sta1: a wireless station that will act as a vulnerable client
-    - fakeAp: an access point which will run a special python script
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+      
+        Using a network simulator: *Mininet-WiFi*
 
-    In the station, you'll prompt a software, wpa_supplicant (a vulnerable version, 2.3), to connect to fakeAp.
+        Topology:
+        - *sta1*: vulnerable *wireless station*
+        - *fakeAp*: an *access point*
 
-    fakeAp will use another software called hostapd to create an access point.
+        *sta1* $arrow.r.filled$ *wpa_supplicant* (*vulnerable version 2.3*) $arrow.r.filled$ *fakeAp*
 
-    Note: hostapd has been modified in order for it to reject the message 4. \
-    #h(2.5em) The script will forward message 3 to sta1 and check for nonce repetitions.
-  
-  ]
+        *fakeAp* $arrow.r.filled$ Python *detector script* $arrow.r.filled$ modified *hostapd istance*
+
+        *Note*: hostapd *reject* message 4 *automatically*
+        
+        #align(center)[$arrow.b.filled$]
+        
+        The *script* will *forward message 3* to sta1 and *check for nonce repetitions*.
+      
+      ]
+    ],
+    [
+      #v(2em)
+      #move(dx: 30pt, dy: 0pt)[#image("img/Mtt/icons/game-icons--pc.svg", width: 30%) #v(-2em) #text(size:1.5em)[#align(center)[*sta1*]]] 
+      
+      #move(dx: 85pt, dy: 0pt)[#text(size: 4em)[$fence.dotted$]]
+      #move(dx: 50pt, dy: 0pt)[#image("img/Mtt/icons/catppuccin--exe.svg", width: 20%) #align(center)[#text(size: 1.5em)[#h(-2em) *wpa_supplicant v2.3*]]]
+      
+      #move(dx: 180pt, dy: -255pt)[#text(size: 4em)[$arrow.l.r.filled$]]
+      #move(dx: 250pt, dy: -354pt)[#image("img/Mtt/icons/mdi--router-wireless.svg", width: 25%) #text(size:1.5em)[#align(center)[*fakeAp*]]]
+      #move(dx: 300pt, dy: -354pt)[#text(size: 4em)[$fence.dotted$]]
+      #move(dx: 265pt, dy: -353pt)[#image("img/Mtt/icons/mdi--language-python.svg", width: 20%)]
+    ]
+  )
 ])
 
 #slide("Exercise 2 (2/2)", [
   #text(size: 1.5em)[
     
-    Follow the wizard you can run from the desktop
+    #grid(
+      columns: (53%,47%),
+      [
+        Follow the *wizard* you can *run* from the *Desktop*
 
-    NOTE: you will be prompted for inserting the vm password (which is _vm_) \
-    NOTE: you need to be on Kernel 4.4. Test it by running _uname -r_ in a terminal
-    NOTE: be careful with commands, it's _./wpa_supplicant23_ #h(1em) *WITH*  #h(1em) _./_
+        - *NOTE*: You'll be prompted for the *vm password* (which is *_vm_*);
+        - *NOTE*: You *must* be on *Kernel 4.4*. Test it by running *_uname -r_* in a terminal.
+        - *NOTE*: be careful with commands, it's \ *_./wpa_supplicant23_* #h(0.5em) *WITH*  #h(0.5em) *_./_*
 
-    A brief explanation on the wpa_supplicant command:
+        Explanation on the *wpa_supplicant command*:
 
-    ./wpa_supplicant23 -i sta1-wlan0 -c "wifiConfig.conf"
+        ```shell-unix-generic
+        ./wpa_supplicant23 -i sta1-wlan0 -c "wifiConfig.conf"
+        ```
 
-    - -i means "use the interface sta1-wlan0", sta1-wlan0 is the name of the wireless interface
-    - -c "wifiConfig.conf", use the configuration file _wifiConfig.conf_, which simply contains the details of the network (SSID and passphrase)
+        - *-i* means _*"use the interface sta1-wlan0"*_, *sta1-wlan0* is the *wireless interface* of *sta1*;
+        - *-c* "wifiConfig.conf", use the *configuration file _wifiConfig.conf_*, which simply contains the *details of the network* (mainly *SSID* and *passphrase*)
+      ],
+      [
 
-  
+      ]
+    )
   ]
 ])
 
-#slide("Consequences", [
-  #text(size: 1.5em)[
-    
-    Why the freshness is needed?
+#slide("Consequences (1/8)", [
 
-    Stream ciphers uses xor. Two properties:
-    - A$xor$A=0
-    - 0$xor$A=A
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+      
+        Why requiring *freshness*? \
+        Stream ciphers uses xor (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+      ]
+    ],
+    [
+      #figure(
+        image("img/Mtt/images/stream-cipher.png"),
+        numbering: none,
+        caption: [Stream Cipher image by #link("https://commons.wikimedia.org/wiki/File:Stream_cipher.svg")[Sissssou] under CC BY-SA 3.0. Available on Wikimedia Commons.]
+      )
+    ]
+  )
 
-    Let's say we have:
-    - C or C' ciphertext
-    - K is the keystream
-    - P and P' are plaintext
+])
 
-    C = P$xor$K and C' = P'$xor$K
+#slide("Consequences (2/8)", [
 
-    C$xor$C'= (P$xor$K) $xor$ (P'$xor$K) \
-    C$xor$C'= P$xor$K$xor$P'$xor$K can be reorganized in K$xor$K$xor$P'$xor$P \
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*] 
+      ]
+    ],
+    [
+      #figure(
+        image("img/Mtt/images/stream-cipher.png"),
+        numbering: none,
+        caption: [Stream Cipher image by #link("https://commons.wikimedia.org/wiki/File:Stream_cipher.svg")[Sissssou] under CC BY-SA 3.0. Available on Wikimedia Commons.]
+      )
+    ]
+  )
 
-    But K$xor$K=0 -> 0$xor$P'$xor$P but 0$xor$P'=P' so we have P'$xor$P
+])
 
-    If we know part of P or P' (like an header) we can use it to decrypt the counterpart!
+#slide("Consequences (3/8)", [
 
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+      ]
+    ],
+    [
+      #figure(
+        image("img/Mtt/images/stream-cipher.png"),
+        numbering: none,
+        caption: [Stream Cipher image by #link("https://commons.wikimedia.org/wiki/File:Stream_cipher.svg")[Sissssou] under CC BY-SA 3.0. Available on Wikimedia Commons.]
+      )
+    ]
+  )
 
-  
-  ]
+])
+
+#slide("Consequences (4/8)", [
+
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*K $xor$ K $xor$ P' $xor$ P*]
+      ]
+    ],
+    [
+      #figure(
+        image("img/Mtt/images/stream-cipher.png"),
+        numbering: none,
+        caption: [Stream Cipher image by #link("https://commons.wikimedia.org/wiki/File:Stream_cipher.svg")[Sissssou] under CC BY-SA 3.0. Available on Wikimedia Commons.]
+      )
+    ]
+  )
+
+])
+
+#slide("Consequences (5/8)", [
+
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*K $xor$ K $xor$ P' $xor$ P*]
+      ]
+    ],
+    [
+      #grid(
+        columns: (100%),
+        [
+          #text(size: 1.5em)[
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *K $xor$ K* = *0*] 
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*0 $xor$ P' $xor$ P*]
+          ]
+        ],
+        [
+          
+        ]
+      )
+    ]
+  )
+])
+
+#slide("Consequences (6/8)", [
+
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*K $xor$ K $xor$ P' $xor$ P*]
+      ]
+    ],
+    [
+      #grid(
+        columns: (100%),
+        [
+          #text(size: 1.5em)[
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *K $xor$ K* = *0*] 
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*0 $xor$ P' $xor$ P*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *0 $xor$ P'* = *P'*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[
+              Remains *P' $xor$ P*
+            ]
+          ]
+        ],
+        [
+          
+        ]
+      )
+    ]
+  )
+])
+
+#slide("Consequences (7/8)", [
+
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*K $xor$ K $xor$ P' $xor$ P*]
+      ]
+    ],
+    [
+      #grid(
+        columns: (100%),
+        [
+          #text(size: 1.5em)[
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *K $xor$ K* = *0*] 
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*0 $xor$ P' $xor$ P*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *0 $xor$ P'* = *P'*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[
+              Remains *P' $xor$ P*
+            ]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[
+              Knowing *P* or *P'* (ex. header) $arrow.r.filled$ *decrypt the counterpart!*
+            ]
+          ]
+        ],
+        [
+          
+        ]
+      )
+    ]
+  )
+])
+
+#slide("Consequences (8/8)", [
+
+  #grid(
+    columns: (50%,50%),
+    [
+      #text(size: 1.5em)[
+        Stream ciphers uses *xor* (symbol being *$xor$*). Two properties:
+        - *A $xor$ A* = *0*
+        - *0 $xor$ A* = *A*
+        Let's say we have:
+        - *K* *reused keystream*
+        - *P* and *P'* *plaintext*
+        - *C* and *C'* *ciphertext*
+        #align(center)[*C* = *P $xor$ K* and *C'* = *P' $xor$ K*] 
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C'* = *(P $xor$ K)* *$xor$* *(P' $xor$ K)*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*C $xor$ C*'= *P $xor$ K $xor$ P' $xor$ K*]
+        #align(center)[$arrow.b.filled$]
+        #align(center)[*K $xor$ K $xor$ P' $xor$ P*]
+      ]
+    ],
+    [
+      #grid(
+        columns: (100%),
+        [
+          #text(size: 1.5em)[
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *K $xor$ K* = *0*] 
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*0 $xor$ P' $xor$ P*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[*But* *0 $xor$ P'* = *P'*]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[
+              Remains *P' $xor$ P*
+            ]
+            #align(center)[$arrow.b.filled$]
+            #align(center)[
+              Knowing *P* or *P'* (ex. header) $arrow.r.filled$ *decrypt the counterpart!*
+            ]
+          ]
+        ],
+        [
+          #v(2em)
+          #text(size: 1.5em)[And sometimes it's even worse: *wpa_supplicant v2.5* installs an *all-0 key*]
+        ]
+      )
+    ]
+  )
 ])
 
 #slide("AI Usage Declaration and other information",[
