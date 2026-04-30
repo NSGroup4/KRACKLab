@@ -5,16 +5,34 @@
 
 #slide("A small note regarding the VM",[
   
-  #text(size: 1.5em)[
+  #grid(
+    columns: (50%,50%),
+    align: (x,y) => {
+      if(x==1) {
+        center
+      } else {
+        left
+      }
+    },
+    [
+      #text(size: 1.5em)[
 
-    - Username: _vm_
-    - Password: _vm_
+        Login credentials are:
 
-    *BE CAREFUL*: you *NEED*  to boot on Kernel 4.4 (test with _uname -r_ in a terminal)
+        - Username: *_vm_*
+        - Password: *_vm_*
 
-    If not *REBOOT THE MACHINE* and go to "Advanced Options" > "Kernel 4.4 (generic)"
+        *NOTE*: you *MUST* boot on Kernel 4.4.0 $arrow.r.filled$ You can check by running *_uname -r_* in a terminal)
 
-  ]
+        If not, *REBOOT THE MACHINE* and go to *_"Advanced options for Ubuntu"_* > *_"Kernel 4.4.0-040400-generic"_*
+
+      ]
+    ],
+    [
+      #image("img/Mtt/images/boot1.png", width: 60%)
+      #image("img/Mtt/images/boot2.png", width: 60%)
+    ]
+  )
 
 ])
 
@@ -73,7 +91,7 @@
 
         *fakeAp* $arrow.r.filled$ Python *detector script* $arrow.r.filled$ modified *hostapd istance*
 
-        *Note*: hostapd *reject* message 4 *automatically*
+        *NOTE*: hostapd *reject* message 4 *automatically*
         
         #align(center)[$arrow.b.filled$]
         
@@ -102,7 +120,7 @@
     #grid(
       columns: (53%,47%),
       [
-        Follow the *wizard* you can *run* from the *Desktop*
+        Follow the *wizard* (*_Ex2 Wizard_*) you can *run* from the *Desktop*
 
         - *NOTE*: You'll be prompted for the *vm password* (which is *_vm_*);
         - *NOTE*: You *must* be on *Kernel 4.4*. Test it by running *_uname -r_* in a terminal.
@@ -118,7 +136,7 @@
         - *-c* "wifiConfig.conf", use the *configuration file _wifiConfig.conf_*, which simply contains the *details of the network* (mainly *SSID* and *passphrase*)
       ],
       [
-
+        #align(center+horizon)[#image("img/Mtt/images/ex2.png")]
       ]
     )
   ]
@@ -132,10 +150,10 @@
       #text(size: 1.5em)[
       
         Why requiring *freshness*? \
-        Stream ciphers uses xor (symbol being *$xor$*). Two properties:
+        Stream ciphers use xor (symbol being *$xor$*). Two properties:
         - *A $xor$ A* = *0*
         - *0 $xor$ A* = *A*
-        Let's say we have:
+        Given:
         - *K* *reused keystream*
         - *P* and *P'* *plaintext*
         - *C* and *C'* *ciphertext*
