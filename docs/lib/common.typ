@@ -9,5 +9,5 @@
 #let authors = (
   andrea: (name: "Andrea Jesus", surname: "Soranzo Mendez", stid: "267339"),
   matteo: (name: "Matteo", surname: "Schievano", stid: "265989"),
-  lorenzo: (name: "Lorenzo", surname: "Surname", stid: "123456"),
+  lorenzo: (name: "Lorenzo", surname: "Caraffini", stid: "267428"),
 )

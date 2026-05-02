@@ -36,6 +36,27 @@
 
 ])
 
+
+#import "@preview/chronos:0.3.0"
+#slide([The 4-way handshake], [
+  #align(center + horizon, [
+    #scale(160%)[
+      #chronos.diagram({
+        import chronos: *
+        _par("S", display-name: "Supplicant")
+        _par("A", display-name: "Access Point")
+
+        _seq("A", "S", comment: "Message1(replay_counter, ANonce)")
+        _seq("S", "A", comment: "Message2(replay_counter, SNonce)")
+        _seq("A", "S", comment: "Message3(replay_counter + 1, GTK)")
+        _seq("S", "A", comment: "Message4(replay_counter + 1)")
+      })
+
+      *4-way Handshake*
+    ]
+  ])
+])
+
 #slide("A small note regarding CCMP",[
   
   #grid(
@@ -454,6 +475,250 @@
   )
 ])
 
+// 
+// Fast BSS Transition
+//
+
+#show raw: code => box(
+    fill: luma(90%),
+    outset: 0.3em,
+    radius: 0.4pt
+)[#code]
+
+
+#slide([Fast BSS Transition (1/2)], [
+  #grid(
+    columns: (50%, 50%),
+    [
+      #text(size: 1.5em, [
+        An *AP* and a set of *stations* are called a _Base Service Set (BSS)_
+
+        \
+        *Fast BSS Transition (FT)* allows stations to quickly switch between APs in the same protected network
+
+        \
+        - Similar structure the 4-way handshake
+        - Initiated by the supplicant
+        - Does _not_ require a new 4-way handshake with the new AP
+
+        \
+        #underline([No message in the FT handshake contains a replay counter])
+      ])
+    ],
+    [
+      #align(center + horizon, [
+        #chronos.diagram({
+          import chronos: *
+          _par("Supplicant")
+          _par("Access Point")
+
+          _seq("Supplicant", "Access Point", comment: "Authorization Request (SNonce)", comment-align: "center")
+          _seq("Access Point", "Supplicant", comment: "Authorization Response (ANonce, SNonce)", comment-align: "center")
+          _delay(name: "PTK installation")
+          _seq("Supplicant", "Access Point", comment: "Reassociation Request (ANonce, SNonce, MIC)", comment-align: "center")
+          _seq("Access Point", "Supplicant", comment: "Reassociation Response (ANonce, SNonce, MIC, GTK)", comment-align: "center")
+          _seq("Access Point", "Supplicant", comment: "Encrypted data", comment-align: "center")
+        })
+
+        *FT Handshake*
+      ])
+      
+    ]
+  )
+])
+
+#slide([Fast BSS Transition (2/2)], [
+  #grid(
+    columns: (50%, 50%),
+    [
+      #text(size: 1.5em, [
+        Implementations reinstall the key *after the Reassociation Response* instead of after the
+        Authentication Response
+        - This is _not_ a protocol weakness
+
+        \
+        Data frames can be transmitted/accepted after the Reassociation Request has been sent
+
+        \
+        An attacker can sniff and replay the Reassociation Request and cause the AP to reinstall the key and
+        reuse nonces
+
+        \
+        #underline([This attack *does not* need a Man in the Middle position])
+      ])
+    ],
+    [
+      #align(center + horizon, [
+        #chronos.diagram({
+          import chronos: *
+          _par("S", display-name: "Supplicant")
+          _par("M", display-name: "Attacker")
+          _par("A", display-name: "Access Point")
+
+          _seq("S", "A", comment: "Authorization Request (SNonce)", comment-align: "center")
+          _seq("A", "S", comment: "Authorization Response (ANonce, SNonce)", comment-align: "center")
+          _seq("S", "A", comment: "Reassociation Request (ANonce, SNonce, MIC)", comment-align: "center")
+          _seq("A", "S", comment: "Reassociation Response (ANonce, SNonce, MIC, GTK)", comment-align: "center")
+          _delay(name: "PTK installation")
+          _seq("A", "S", comment: "Encrypted data", comment-align: "center")
+          _seq("M", "A", comment: "Reassociation Request (ANonce, SNonce, MIC)", comment-align: "center")
+          _seq("A", "S", comment: "Reassociation Response (ANonce, SNonce, MIC, GTK)", comment-align: "center")
+          _delay(name: "PTK reinstallation")
+          _seq("A", "S", comment: "Encrypted data with reused nonces", comment-align: "center")
+        })
+
+        *Key reinstallation attack against the FT Handshake*
+      ])
+      
+    ]
+  )
+])
+
+
+#slide([Exercise 3 -- Setup], [
+  #text(size: 1.5em)[
+    #grid(
+      columns: (50%, 50%),
+      [
+        The network topology is simulated using mininet wifi
+
+        \
+        The station runs `wpa_supplicant` wrapped inside the testing script
+
+        \
+        The AP runs a vulnerable version of `hostapd` (2.3)
+
+        \
+        In a real world scenario we'd need a second AP for roaming
+
+        \
+        If mininet doesn't start, try again after running\
+        ```shell-unix-generic sudo mn -c```
+        
+      ],
+      [
+        #text(size: 1em, weight: "bold")[Simulated network topology]
+        #set align(center)
+          
+        *sta1*
+        #ellipse[
+          krack_ft.py
+          #ellipse[
+            wpa_supplicant
+          ]
+        ]
+        // ARROW
+        #text(size: 4em,)[
+          #v(-1em)
+          $fence.dotted$
+          #v(-0.8em)
+        ]
+        #ellipse[
+          hostapd
+        ]
+        *fakeAp1*
+      ]
+    )
+  ]
+])
+
+
+#slide([Exercise 3 -- Commands], [
+  #text(size: 1.5em)[
+    #underline([Mind the "./", we do not want to use the programs installed on the system])
+
+    *On the AP's terminal:*\
+    ```shell-unix-generic 
+    ./hostapd hostapd.conf    # Run hostapd with the given configuration file
+    ```
+
+    *On the station's 1st terminal:*\
+    ```shell-unix-generic
+    cd krackattacks-scripts/krackattack/ # Navigate to the script's directory
+    source venv/bin/activate             # Activate the python virtual environment
+    
+    # Start the supplicant with the attack script, on the station's wireless interface and
+    # with the given configurations
+    python3 krack_ft.py ../../wpa_supp -i sta1-wlan0 -c ../../supplicant.conf 
+    ```
+
+    *On the station's 2nd terminal:*\
+    ```shell-unix-generic
+    ./wpa_cli                 # Open the interactive cli
+    ```
+
+    *Inside wpa_cli:*\
+    ```shell-unix-generic
+    > status                  # Show informations about the current connection
+    > roam 02:11:11:11:11:11  # Force roaming to thhe station with this MAC address (fakeAp1)
+    ```
+
+  ]
+])
+
+
+#slide([Exercise 3 -- Results], [
+  #text(size: 1.5em)[
+    Use the GUI to generate some traffic (this uses the ``` arping``` command) and observe the
+    CCMP Packet Numbers in Wireshark.\
+
+    \
+    #align(center)[
+      #grid(
+        columns: (20%, 30%, 30%, 20%),
+        [
+          #v(5em)
+          Packet numbers are incremented normally
+        ],
+        [
+          Safe
+          #image("img/FT/NonVulnerable.png")
+        ],
+        [
+          Vulnerable
+          #image("img/FT/Vulnerable.png")
+        ],
+        [
+          #v(5em)
+          Packet numbers are repeating after every Reassociation Response
+        ]
+      )
+    ]
+  ]
+])
+
+#slide([Mitigations], [
+  #align(
+    center,
+    [
+      #text(size: 1.5em)[
+        *Update your system*\
+        Hostapd and wpa_supplicant 2.6 and above only install a key if it is fresh\
+        Modern Linux kernels automatically drop replayed packets
+
+
+        \
+        *Enable Protected Management Frames*\
+        Management frames sent after the 4-way handshake are protected\
+        This includes FT frames, disassociation and deauthentication frames...
+          
+      ]
+
+      \
+      #text(size: 2em)[
+        Try seeing what happens if you repeat exercise 3 with the system's
+        version of hostapd\
+        (without the "./")
+      ]
+    ]
+  )
+
+  
+])
+
+//
+// AI Usage Disclosure
+//
 #slide("AI Usage Declaration and other information",[
 
   #align(center+horizon)[
