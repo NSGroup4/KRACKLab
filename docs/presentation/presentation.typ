@@ -592,14 +592,14 @@
   )
 ])
 
-// 
+//
 // Fast BSS Transition
 //
 
 #show raw: code => box(
-    fill: luma(90%),
-    outset: 0.3em,
-    radius: 0.4pt
+  fill: luma(90%),
+  outset: 0.3em,
+  radius: 0.4pt,
 )[#code]
 
 
@@ -630,17 +630,32 @@
           _par("Access Point")
 
           _seq("Supplicant", "Access Point", comment: "Authorization Request (SNonce)", comment-align: "center")
-          _seq("Access Point", "Supplicant", comment: "Authorization Response (ANonce, SNonce)", comment-align: "center")
+          _seq(
+            "Access Point",
+            "Supplicant",
+            comment: "Authorization Response (ANonce, SNonce)",
+            comment-align: "center",
+          )
           _delay(name: "PTK installation")
-          _seq("Supplicant", "Access Point", comment: "Reassociation Request (ANonce, SNonce, MIC)", comment-align: "center")
-          _seq("Access Point", "Supplicant", comment: "Reassociation Response (ANonce, SNonce, MIC, GTK)", comment-align: "center")
+          _seq(
+            "Supplicant",
+            "Access Point",
+            comment: "Reassociation Request (ANonce, SNonce, MIC)",
+            comment-align: "center",
+          )
+          _seq(
+            "Access Point",
+            "Supplicant",
+            comment: "Reassociation Response (ANonce, SNonce, MIC, GTK)",
+            comment-align: "center",
+          )
           _seq("Access Point", "Supplicant", comment: "Encrypted data", comment-align: "center")
         })
 
         *FT Handshake*
       ])
-      
-    ]
+
+    ],
   )
 ])
 
@@ -686,8 +701,8 @@
 
         *Key reinstallation attack against the FT Handshake*
       ])
-      
-    ]
+
+    ],
   )
 ])
 
@@ -711,12 +726,12 @@
         \
         If mininet doesn't start, try again after running\
         ```shell-unix-generic sudo mn -c```
-        
+
       ],
       [
         #text(size: 1em, weight: "bold")[Simulated network topology]
         #set align(center)
-          
+
         *sta1*
         #ellipse[
           krack_ft.py
@@ -725,7 +740,7 @@
           ]
         ]
         // ARROW
-        #text(size: 4em,)[
+        #text(size: 4em)[
           #v(-1em)
           $fence.dotted$
           #v(-0.8em)
@@ -734,7 +749,7 @@
           hostapd
         ]
         *fakeAp1*
-      ]
+      ],
     )
   ]
 ])
@@ -745,7 +760,7 @@
     #underline([Mind the "./", we do not want to use the programs installed on the system])
 
     *On the AP's terminal:*\
-    ```shell-unix-generic 
+    ```shell-unix-generic
     ./hostapd hostapd.conf    # Run hostapd with the given configuration file
     ```
 
@@ -753,10 +768,10 @@
     ```shell-unix-generic
     cd krackattacks-scripts/krackattack/ # Navigate to the script's directory
     source venv/bin/activate             # Activate the python virtual environment
-    
+
     # Start the supplicant with the attack script, on the station's wireless interface and
     # with the given configurations
-    python3 krack_ft.py ../../wpa_supp -i sta1-wlan0 -c ../../supplicant.conf 
+    python3 krack_ft.py ../../wpa_supp -i sta1-wlan0 -c ../../supplicant.conf
     ```
 
     *On the station's 2nd terminal:*\
@@ -798,7 +813,7 @@
         [
           #v(5em)
           Packet numbers are repeating after every Reassociation Response
-        ]
+        ],
       )
     ]
   ]
@@ -818,7 +833,7 @@
         *Enable Protected Management Frames*\
         Management frames sent after the 4-way handshake are protected\
         This includes FT frames, disassociation and deauthentication frames...
-          
+
       ]
 
       \
@@ -827,7 +842,7 @@
         version of hostapd\
         (without the "./")
       ]
-    ]
+    ],
   )
 ])
 
@@ -842,7 +857,7 @@
         align: left,
         [The final exercise is a practical *demonstration*],
         [Replicating the attack using *real hardware* to establish a *channel-based MitM position*.],
-        [We will observe how earlier versions of Android, specifically those *prior to version 6.0*, are particularly vulnerable to the KRACK attack.],
+        [We will observe how earlier versions of Android, specifically those *prior to version 6.1*, are particularly vulnerable to the KRACK attack.],
       )
     ]
   ]
