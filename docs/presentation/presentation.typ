@@ -36,39 +36,6 @@
 
 ])
 
-#slide("EAPOL", [
-  #align(center + horizon)[
-    #block(width: auto)[
-      #set text(size: 1.5em)
-      #grid(
-        rows: 3,
-        columns: 1,
-        row-gutter: 3em,
-        align: left,
-        [It is a network communication protocol *used in both wired and wireless environments*],
-        [More *extensively utilized in Enterprise Mode, it is still essential in Personal Mode* to facilitate a secure key exchange],
-        [Used in the 4-way handshake],
-      )
-    ]
-  ]
-])
-
-#slide("EAPOL frame", [
-  #align(center + bottom)[
-    #block(width: auto)[
-      #set text(size: 1.5em)
-      #grid(
-        rows: 2,
-        columns: 1,
-        row-gutter: 2em,
-        align: center,
-        [These frames can be very complex but we only care about *few of them*],
-        [#image("img/And/eapol.png", width: 100%)],
-      )
-    ]
-  ]
-])
-
 #slide("Exploiting the handshake (1/4)", [
   #align(center + horizon)[
     #block(width: auto)[
