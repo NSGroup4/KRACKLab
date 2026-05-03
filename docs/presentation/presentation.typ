@@ -712,6 +712,9 @@
     #grid(
       columns: (50%, 50%),
       [
+        *Open the GUI for Ex3 from your desktop*
+
+        \
         The network topology is simulated using mininet wifi
 
         \
@@ -742,7 +745,7 @@
         // ARROW
         #text(size: 4em)[
           #v(-1em)
-          $fence.dotted$
+          $arrow.t.b.filled$
           #v(-0.8em)
         ]
         #ellipse[
@@ -838,8 +841,8 @@
 
       \
       #text(size: 2em)[
-        Try seeing what happens if you repeat exercise 3 with the system's
-        version of hostapd\
+        What do you think will happen if you repeat exercise 3 with the
+        system's version of hostapd?\
         (without the "./")
       ]
     ],
