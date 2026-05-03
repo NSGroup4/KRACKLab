@@ -1,0 +1,65 @@
+mnwifi:
+  type: Web
+  title: Official Website of Mininet-WiFi
+  author: Information and Networking Technologies Research and Innovation Group at University of Campinas and contributors
+  url: https://mininet-wifi.github.io/
+
+script:
+  type: Web
+  title: GitHub repository of KRACK vulnerability testing scripts
+  author: Mathy Vanhoef
+  url: https://github.com/vanhoefm/krackattacks-scripts
+
+wpa_sup:
+  type: Web
+  title: Official website of the wpa_supplicant developer | Releases page
+  author: Jouni Malinen
+  url: https://w1.fi/releases/
+
+xubuntu:
+  type: Web
+  title: Official website of Xubuntu | Download page
+  author: Xubuntu developers
+  url: https://xubuntu.org/download/
+
+repo:
+  type: Web
+  title: Official GitHub repository of the fourth laboratory of the Network Security class @ UniTn (2025/26)
+  author: [Andrea Jesus Soranzo Mendez, Lorenzo Caraffini, Matteo Schievano]
+  url: https://github.com/NetSecGroup5/KRACKLab
+
+kernel4.4:
+  type: Web
+  title: Ubuntu Linux Kernel 4.4 official download page
+  author: Canonical
+  url: https://kernel.ubuntu.com/mainline/v4.4-wily/
+
+wireshark:
+  type: Web
+  title: Official Wireshark website
+  author: Wireshark Foundation
+  url: https://www.wireshark.org
+
+rc4nomore:
+  type: Web
+  title: Official website of the RC4 NOMORE vulnerability
+  author: [Mathy Vanhoef, Frank Piessens]
+  url: https://www.rc4nomore.com/
+
+krackattackwebsite:
+  type: Web
+  title: Official website of the KRACK vulnerability
+  author: Mathy Vanhoef
+  url: https://www.krackattacks.com/
+
+krackattackpaper:
+  type: Article
+  title: "Key Reinstallation Attacks: Forcing Nonce Reuse in WPA2"
+  author: Mathy Vanhoef
+  url: https://papers.mathyvanhoef.com/ccs2017.pdf
+
+classroomrules:
+  type: Web
+  title: Rules on the Use of AI and Large Language Models (LLMs)
+  author: Bruno Crispo
+  url: https://classroom.google.com/c/ODQ1MjQwNjM0MDQz
