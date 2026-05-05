@@ -60,10 +60,10 @@
     ./build.sh
     ./pysetup.sh
     ```
-  + Build hostapd v2.3 from source:
+  + Build hostapd and wpa_supplicant v2.3 from source:
     + Clone the hostapd repository
     + checkout into the 2_3 branch
-    + in the hostapd directory, copy the `defconfig` file into `.config`
+    + in the hostapd/wpa_supplicant directory, copy the `defconfig` file into `.config`
     + In the `.config` file, uncomment these lines:
       ```
       LIBNL32=y
@@ -72,9 +72,16 @@
       The first one relates to compilation libraries, the second one is to
       enable FT.
 
-      If the build step fails, also uncomment the line `CONFIG_TLS=openssl`
-      and edit it into `CONFIG_TLS=internal`
-    + Compile
+      If the build step fails, also uncomment the line
+      ```shell-unix-generic
+      CONFIG_TLS=openssl
+      ```
+      and edit it into
+      ```shell-unix-generic
+      CONFIG_TLS=internal
+      ```
+
+    + Compile both
       ```shell-unix-generic
       make clean
       make
@@ -93,15 +100,11 @@
       time to select the kernel you want on boot])
   
   == Exercise setup
-  + Copy the vulnerable hostapd version you've compiled into the `lab/ex3`
-    directory of the repository
-  + The exercise instructions assume you have a compiled version of
-    `wpa_supplicant` on that same directory under the name `wpa_supp`.
-    you should be able to just copy the one from your system, otherwise
-    follow the same steps as hostapd to build it from source. It lives
-    in the same repository as hostapd and the same changes to the `.config`
-    file still apply. Do the same for `wpa_cli`, it is built alongside
-    `wpa_supplicant` when doing it from source.
+  + Copy the vulnerable hostapd, wpa_supplicant and wpa_cli versions you've
+    compiled into the `lab/ex3` directory of the repository
+  + The exercise instructions assume you rename wpa_supplicant as `wpa_supp`.
+    Also ensure all three of those executable have execution permissions\
+    `chmod u+x <file>`
   + For convinience, copy the `lab/ex2/krackattack-scripts` directory
     into `lab/ex3/`, otherwise make sure to adjust the relative paths
     of future commands to accomodate for the new location.
@@ -124,11 +127,12 @@
   - `Reassociation Response(ANonce, SNonce, MIC, GTK)`
 
   According to the protocol, key installation should happen after the
-  second message, meaning that attempting to reinstall the key by replaying
-  the first one will fail as the AP will generate a different nonce to
-  derive the key. Instead, most implementations did the installation
-  after the fourth message, causing a repeated Reassociation Request
-  to be accepted and thus the key being reinstalled.
+  second message. This means that attempting to reinstall the key by replaying
+  the first one will fail as the AP generates a different nonce to
+  derive the key upon receiving a replayed Authentication Request.
+  Instead, most implementations did the installation after the fourth
+  message, causing a repeated Reassociation Request to be accepted and
+  thus the key being reinstalled.
 
   \
   This attack only involves replaying a message, unlike other kinds of
@@ -226,7 +230,10 @@
 
 
   //INCLUDE AI USAGE DECLARATION. MANDATORY. YOU CAN ADD LINES AFTER THE INCLUSION.
-  #include "commonParagraph/AIUD.typ"
+  = Artificial Intelligence Usage Declaration and additional information
+  For the writing of this specific report no artificial intelligence was
+  used, for any purpose.
+  //#include "commonParagraph/AIUD.typ"
 
   #bibliography("sitography/Lrn/reportLrnSit.yml", title: "Sitography")
 ], "Laboratory "+labNumber)
